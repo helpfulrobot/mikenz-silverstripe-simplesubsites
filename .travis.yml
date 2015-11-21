@@ -1,34 +1,28 @@
 # See https://github.com/silverstripe-labs/silverstripe-travis-support for setup details
 
-language: php
-
 sudo: false
 
+language: php
+
 php:
- - 5.5
+  - 5.5
+  - 5.6
+  - 7.0
 
 env:
-  global:
-    - CORE_RELEASE=master
-  matrix:
-    - DB=MYSQL
-    - DB=PGSQL
+  - DB=MYSQL CORE_RELEASE=4.0
 
 matrix:
   include:
-    - php: 5.5
-      env: DB=MYSQL BEHAT_TEST=1
+    - php: 5.6
+      env: DB=PGSQL CORE_RELEASE=4.0
 
 before_script:
- - composer self-update || true
- - phpenv rehash
- - git clone git://github.com/silverstripe-labs/silverstripe-travis-support.git ~/travis-support
- - "if [ \"$BEHAT_TEST\" = \"\" ]; then php ~/travis-support/travis_setup.php --source `pwd` --target ~/builds/ss; fi"
- - "if [ \"$BEHAT_TEST\" = \"1\" ]; then php ~/travis-support/travis_setup.php --source `pwd` --target ~/builds/ss --require silverstripe/behat-extension; fi"
- - cd ~/builds/ss
- - php ~/travis-support/travis_setup_selenium.php --if-env BEHAT_TEST
- - php ~/travis-support/travis_setup_php54_webserver.php --if-env BEHAT_TEST
+  - composer self-update || true
+  - git clone git://github.com/silverstripe-labs/silverstripe-travis-support.git ~/travis-support
+  - php ~/travis-support/travis_setup.php --source `pwd` --target ~/builds/ss
+  - cd ~/builds/ss
+  - composer install
 
-script: 
- - "if [ \"$BEHAT_TEST\" = \"\" ]; then vendor/bin/phpunit subsites/tests; fi"
- - "if [ \"$BEHAT_TEST\" = \"1\" ]; then vendor/bin/behat @subsites; fi"
+script:
+  - vendor/bin/phpunit subsites/tests
